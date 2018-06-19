@@ -6,9 +6,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
@@ -125,6 +127,12 @@ public class JCrunch {
       catch( ParseException exp ) {
           // oops, something went wrong
           System.err.println( "Parsing failed.  Reason: " + exp.getMessage() );
+          
+          String header = "Generate a list of possible password based on a wordlist and numbers\n\n";
+          String footer = "\nPlease report issues at https://github.com/sergiocormio/jcrunch";
+          
+          HelpFormatter formatter = new HelpFormatter();
+          formatter.printHelp("jcrunch", header, options, footer, true);
       }
    }
 
