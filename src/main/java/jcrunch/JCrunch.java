@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -18,11 +17,17 @@ import org.apache.commons.cli.ParseException;
 public class JCrunch {
    
    private List<String> wordlist = new ArrayList<>();
+   private List<String> suffixWordlist = new ArrayList<>();
    private boolean addNumberSuffix = false;
    private int minNumberSuffix = 0;
    private int maxNumberSuffix = 9999;
+   private boolean applyPadding = false;
+   private String leftPadExpression;
    
-   public JCrunch ( BufferedReader br, CommandLine commandLine) throws IOException{
+   
+   public JCrunch ( CommandLine commandLine ) throws IOException{
+      String filePath = commandLine.getOptionValue( "wordlist" );
+      BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), commandLine.getOptionValue( "encoding", "iso-8859-1" )));
       String word;
       while ((word = br.readLine()) != null) {
          if(commandLine.hasOption( "normalize" )){
@@ -52,26 +57,54 @@ public class JCrunch {
          wordlist.add( word );
       }
       br.close();
+      
+      if( commandLine.hasOption( "suffix_wordlist" )){
+         String suffixFilePath = commandLine.getOptionValue( "suffix_wordlist" );
+         br = new BufferedReader(new InputStreamReader(new FileInputStream(suffixFilePath), commandLine.getOptionValue( "encoding", "iso-8859-1" )));
+         while ((word = br.readLine()) != null) {
+            suffixWordlist.add( word );
+         }
+         br.close();
+      }else{
+         suffixWordlist.add( "" );
+      }
+      
+      if( commandLine.hasOption( "left_pad" )){
+         applyPadding = true;
+         leftPadExpression =  "%0" + commandLine.getOptionValue( "left_pad" , "8") + "d";
+      }
    }
    
    public void run(){
       int count = 0;
+      String number;
       if( addNumberSuffix ){
          for( count = minNumberSuffix; count <= maxNumberSuffix; count++){
             for( String word : wordlist ){
-               System.out.println( word + count );
-               if(count < 1000){
-                  System.out.println( word + "0" + count );
-                  System.out.println( word + "00" + count );
-                  System.out.println( word + "000" + count );
+               for(String postSuffix : suffixWordlist){
+                  if(applyPadding){
+                     number = String.format( leftPadExpression, count);
+                  }else{
+                     number = String.valueOf( count );
+                  }
+                  print(word, number , postSuffix);
                }
             }
          }
       }else{
          for( String word : wordlist ){
-            System.out.println( word );
+            for(String postSuffix : suffixWordlist){
+               print(word, "", postSuffix);
+            }
          }
       }
+   }
+   
+   private void print(String prefix, String number, String suffix){
+      StringBuilder stringBuilderAux = new StringBuilder(prefix);
+      stringBuilderAux.append( number );
+      stringBuilderAux.append( suffix );
+      System.out.println( stringBuilderAux );
    }
    
    public static void main( String[] args ) throws IOException {
@@ -81,9 +114,17 @@ public class JCrunch {
                               .longOpt( "wordlist" )
                               .hasArg()
                               .required()
-                              .desc( "wordlist file" )
+                              .desc( "prefixes wordlist file" )
                               .build();
       options.addOption( wordlistFile );
+      
+      Option suffixesWordlistFile = Option.builder("s")
+               .argName( "FILE" )
+               .longOpt( "suffix_wordlist" )
+               .hasArg()
+               .desc( "suffix wordlist file (suffixes after number i.e.: hello1234abc)" )
+               .build();
+      options.addOption( suffixesWordlistFile );
       
       Option normalize = Option.builder("n")
                .longOpt( "normalize" )
@@ -115,14 +156,28 @@ public class JCrunch {
                .build();
       options.addOption( addNumMax );
       
+      Option encoding = Option.builder("e")
+               .argName( "ENCODING" )
+               .longOpt( "encoding" )
+               .hasArg()
+               .desc( "encoding of wordlist files" )
+               .build();
+      options.addOption( encoding );
+      
+      Option leftPad = Option.builder("p")
+               .argName( "DIGITS" )
+               .longOpt( "left_pad" )
+               .hasArg()
+               .desc( "complete number with ZEROS" )
+               .build();
+      options.addOption( leftPad );
+      
       // create the parser
       CommandLineParser parser = new DefaultParser();
       try {
           // parse the command line arguments
           CommandLine commandLine = parser.parse( options, args );
-          String filePath = commandLine.getOptionValue( "wordlist" );
-          BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), "iso-8859-1"));
-          new JCrunch( br, commandLine ).run();
+          new JCrunch( commandLine ).run();
       }
       catch( ParseException exp ) {
           // oops, something went wrong
