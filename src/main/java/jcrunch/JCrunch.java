@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -18,6 +19,7 @@ public class JCrunch {
    
    private List<String> wordlist = new ArrayList<>();
    private List<String> suffixWordlist = new ArrayList<>();
+   private List<String> prefixWordlist = new ArrayList<>();
    private boolean addNumberSuffix = false;
    private int minNumberSuffix = 0;
    private int maxNumberSuffix = 9999;
@@ -69,6 +71,18 @@ public class JCrunch {
          suffixWordlist.add( "" );
       }
       
+      if( commandLine.hasOption( "prefix_wordlist" )){
+          String prefixFilePath = commandLine.getOptionValue( "prefix_wordlist" );
+          br = new BufferedReader(new InputStreamReader(new FileInputStream(prefixFilePath), commandLine.getOptionValue( "encoding", "iso-8859-1" )));
+          while ((word = br.readLine()) != null) {
+             prefixWordlist.add( word );
+          }
+          br.close();
+       }else{
+    	   prefixWordlist.add( "" );
+       }
+      
+      
       if( commandLine.hasOption( "left_pad" )){
          applyPadding = true;
          leftPadExpression =  "%0" + commandLine.getOptionValue( "left_pad" , "8") + "d";
@@ -80,29 +94,33 @@ public class JCrunch {
       String number;
       if( addNumberSuffix ){
          for( count = minNumberSuffix; count <= maxNumberSuffix; count++){
-            for( String word : wordlist ){
-               for(String postSuffix : suffixWordlist){
-                  if(applyPadding){
-                     number = String.format( leftPadExpression, count);
-                  }else{
-                     number = String.valueOf( count );
-                  }
-                  print(word, number , postSuffix);
-               }
-            }
+        	for (String prefix: prefixWordlist){
+	            for( String word : wordlist ){
+	               for(String postSuffix : suffixWordlist){
+	                  if(applyPadding){
+	                     number = String.format( leftPadExpression, count);
+	                  }else{
+	                     number = String.valueOf( count );
+	                  }
+	                  print(prefix+word, number , postSuffix);
+	               }
+	            }
+        	}
          }
       }else{
-         for( String word : wordlist ){
-            for(String postSuffix : suffixWordlist){
-               print(word, "", postSuffix);
-            }
-         }
+    	  for (String prefix: prefixWordlist){
+    		  for( String word : wordlist ){
+    			  for(String suffix : suffixWordlist){
+    				  print(prefix, word, suffix);
+    			  }
+    		  }
+    	  }
       }
    }
    
-   private void print(String prefix, String number, String suffix){
+   private void print(String prefix, String middle, String suffix){
       StringBuilder stringBuilderAux = new StringBuilder(prefix);
-      stringBuilderAux.append( number );
+      stringBuilderAux.append( middle );
       stringBuilderAux.append( suffix );
       System.out.println( stringBuilderAux );
    }
@@ -114,15 +132,23 @@ public class JCrunch {
                               .longOpt( "wordlist" )
                               .hasArg()
                               .required()
-                              .desc( "prefixes wordlist file" )
+                              .desc( "wordlist file" )
                               .build();
       options.addOption( wordlistFile );
+      
+      Option prefixesWordlistFile = Option.builder("p")
+              .argName( "FILE" )
+              .longOpt( "prefix_wordlist" )
+              .hasArg()
+              .desc( "prefixes wordlist file" )
+              .build();
+      options.addOption( prefixesWordlistFile );
       
       Option suffixesWordlistFile = Option.builder("s")
                .argName( "FILE" )
                .longOpt( "suffix_wordlist" )
                .hasArg()
-               .desc( "suffix wordlist file (suffixes after number i.e.: hello1234abc)" )
+               .desc( "suffixes wordlist file (suffixes after number i.e.: hello1234abc)" )
                .build();
       options.addOption( suffixesWordlistFile );
       
@@ -164,7 +190,7 @@ public class JCrunch {
                .build();
       options.addOption( encoding );
       
-      Option leftPad = Option.builder("p")
+      Option leftPad = Option.builder("l")
                .argName( "DIGITS" )
                .longOpt( "left_pad" )
                .hasArg()
