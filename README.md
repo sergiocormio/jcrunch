@@ -10,12 +10,14 @@ Penetration Test Tool. JCrunch is a wordlist generator where you can modify a di
 * -add_num_min or -x: concatenate a number as a suffix after words (minimum)
 * -add_num_max or -y: concatenate a number as a suffix after words (maximum)
 * -wordlist or -w: wordlist file
+* -prefix_wordlist or -p: prefix wordlist file
 * -suffix_wordlist or -s: suffix wordlist file (suffixes after number i.e.: hello1234abc)
-* -left_pad or -p: complete number with ZEROS
+* -left_pad or -l: complete number with ZEROS
 * -encoding or -e: encoding of wordlist files
 
 ### Execution Examples
-* java -jar JCrunch.jar -normalize -cut_words 4 -wordlist nombres_propios.txt -add_num_min 0 -add_num_max 9999
-* java -jar JCrunch.jar -n -c 4 -w nombres_propios.txt -x 0 -y 9999
-* java -jar JCrunch.jar -n -c 4 -w nombres_propios.txt -x 0 -y 9999 | aircrack-ng --bssid aa:aa:aa:aa:aa:aa -w- handshakefile.cap
+* java -jar jcrunch.jar -normalize -cut_words 4 -wordlist nombres_propios.txt -add_num_min 0 -add_num_max 9999
+* java -jar jcrunch.jar -n -c 4 -w nombres_propios.txt -x 0 -y 9999
+* java -jar jcrunch.jar -n -c 4 -w nombres_propios.txt -x 0 -y 9999 | aircrack-ng --bssid aa:aa:aa:aa:aa:aa -w- handshakefile.cap
 * java -jar jcrunch.jar -w prefixes.txt -x 1000000 -y 5000000 -s suffixes.txt > my_dictionary.txt
+* java -Xmx2g -jar jcrunch.jar -p ../Diccionarios/fibertel_prefijos.txt -w ../Diccionarios/cuits_generados.txt
