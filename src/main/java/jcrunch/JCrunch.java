@@ -50,16 +50,17 @@ public class JCrunch {
             }
          }
          
-         if(commandLine.hasOption( "add_num_min" ) || commandLine.hasOption( "add_num_max" )){
-            addNumberSuffix = true;
-            minNumberSuffix =Integer.parseInt( commandLine.getOptionValue( "add_num_min", "0" ) );
-            maxNumberSuffix =Integer.parseInt( commandLine.getOptionValue( "add_num_max", "9999" ) );
-         }
          // process the line.
          wordlist.add( word );
       }
       br.close();
       
+      if(commandLine.hasOption( "add_num_min" ) || commandLine.hasOption( "add_num_max" )){
+    	  addNumberSuffix = true;
+    	  minNumberSuffix =Integer.parseInt( commandLine.getOptionValue( "add_num_min", "0" ) );
+    	  maxNumberSuffix =Integer.parseInt( commandLine.getOptionValue( "add_num_max", "9999" ) );
+      }
+
       if( commandLine.hasOption( "suffix_wordlist" )){
          String suffixFilePath = commandLine.getOptionValue( "suffix_wordlist" );
          br = new BufferedReader(new InputStreamReader(new FileInputStream(suffixFilePath), commandLine.getOptionValue( "encoding", "iso-8859-1" )));
