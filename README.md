@@ -10,6 +10,7 @@ Penetration Test Tool. JCrunch is a wordlist generator where you can modify a di
 * -add_num_min or -x: concatenate a number as a suffix after words (minimum)
 * -add_num_max or -y: concatenate a number as a suffix after words (maximum)
 * -wordlist or -w: wordlist file
+* -first_word or -f:    begins with this WORD from the wordlist
 * -prefix_wordlist or -p: prefix wordlist file
 * -suffix_wordlist or -s: suffix wordlist file (suffixes after number i.e.: hello1234abc)
 * -left_pad or -l: complete number with ZEROS

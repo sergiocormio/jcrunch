@@ -25,6 +25,7 @@ public class JCrunch {
    private int maxNumberSuffix = 9999;
    private boolean applyPadding = false;
    private String leftPadExpression;
+   private int firstWordIndex = 0;
    
    
    public JCrunch ( CommandLine commandLine ) throws IOException{
@@ -54,6 +55,14 @@ public class JCrunch {
          wordlist.add( word );
       }
       br.close();
+      
+      if(commandLine.hasOption( "first_word")){
+    	  String firstWord = commandLine.getOptionValue( "first_word" );
+    	  this.firstWordIndex = wordlist.indexOf(firstWord);
+    	  if(firstWordIndex < 0 ){
+    		  firstWordIndex = 0;
+    	  }
+      }
       
       if(commandLine.hasOption( "add_num_min" ) || commandLine.hasOption( "add_num_max" )){
     	  addNumberSuffix = true;
@@ -93,28 +102,36 @@ public class JCrunch {
    public void run(){
       int count = 0;
       String number;
+      String word;
+      int index = firstWordIndex;
       if( addNumberSuffix ){
          for( count = minNumberSuffix; count <= maxNumberSuffix; count++){
         	for (String prefix: prefixWordlist){
-	            for( String word : wordlist ){
-	               for(String postSuffix : suffixWordlist){
-	                  if(applyPadding){
-	                     number = String.format( leftPadExpression, count);
-	                  }else{
-	                     number = String.valueOf( count );
-	                  }
-	                  print(prefix+word, number , postSuffix);
-	               }
+	            while( index < wordlist.size() ){
+	            	word = wordlist.get(index);
+	            	for(String postSuffix : suffixWordlist){
+	            		if(applyPadding){
+	            			number = String.format( leftPadExpression, count);
+	            		}else{
+	            			number = String.valueOf( count );
+	            		}
+	            		print(prefix+word, number , postSuffix);
+	            	}
+	               index++;
 	            }
+	            index = 0;
         	}
          }
       }else{
     	  for (String prefix: prefixWordlist){
-    		  for( String word : wordlist ){
+    		  while( index < wordlist.size() ){
+    			  word = wordlist.get(index);
     			  for(String suffix : suffixWordlist){
     				  print(prefix, word, suffix);
     			  }
-    		  }
+    			  index++;
+	           }
+	          index = 0;
     	  }
       }
    }
@@ -198,6 +215,14 @@ public class JCrunch {
                .desc( "complete number with ZEROS" )
                .build();
       options.addOption( leftPad );
+      
+      Option firstWord = Option.builder("f")
+              .argName( "WORD" )
+              .longOpt( "first_word" )
+              .hasArg()
+              .desc( "begins with this WORD from the wordlist" )
+              .build();
+      options.addOption( firstWord );
       
       // create the parser
       CommandLineParser parser = new DefaultParser();
