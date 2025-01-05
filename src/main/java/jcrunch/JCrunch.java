@@ -26,7 +26,8 @@ public class JCrunch {
    private boolean applyPadding = false;
    private String leftPadExpression;
    private int firstWordIndex = 0;
-   
+   private StringBuilder stringBuilderAux = new StringBuilder();
+
    
    public JCrunch ( CommandLine commandLine ) throws IOException{
       String filePath = commandLine.getOptionValue( "wordlist" );
@@ -126,7 +127,7 @@ private String normalize(String word) {
 	            		}else{
 	            			number = String.valueOf( count );
 	            		}
-	            		print(prefix+word, number , postSuffix);
+	            		print(prefix+word, postSuffix , number);
 	            	}
 	               index++;
 	            }
@@ -148,7 +149,8 @@ private String normalize(String word) {
    }
    
    private void print(String prefix, String middle, String suffix){
-      StringBuilder stringBuilderAux = new StringBuilder(prefix);
+      stringBuilderAux.setLength(0); //clear
+      stringBuilderAux.append( prefix );
       stringBuilderAux.append( middle );
       stringBuilderAux.append( suffix );
       System.out.println( stringBuilderAux );

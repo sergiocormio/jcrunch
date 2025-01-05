@@ -12,7 +12,7 @@ Penetration Test Tool. JCrunch is a wordlist generator where you can modify a di
 * -wordlist or -w: wordlist file
 * -first_word or -f:    begins with this WORD from the wordlist
 * -prefix_wordlist or -p: prefix wordlist file
-* -suffix_wordlist or -s: suffix wordlist file (suffixes after number i.e.: hello1234abc)
+* -suffix_wordlist or -s: suffix wordlist file
 * -left_pad or -l: complete number with ZEROS
 * -encoding or -e: encoding of wordlist files
 
