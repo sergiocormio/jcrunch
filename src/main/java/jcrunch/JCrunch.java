@@ -34,14 +34,7 @@ public class JCrunch {
       String word;
       while ((word = br.readLine()) != null) {
          if(commandLine.hasOption( "normalize" )){
-            word = word.toLowerCase();
-            word = word.replaceAll( "á", "a" );
-            word = word.replaceAll( "é", "a" );
-            word = word.replaceAll( "í", "a" );
-            word = word.replaceAll( "ó", "a" );
-            word = word.replaceAll( "ú", "a" );
-            word = word.replaceAll( "-", "" );
-            word = word.replaceAll( " ", "" );
+            word = normalize(word);
          }
          
          if(commandLine.hasOption( "cut_words")){
@@ -74,7 +67,10 @@ public class JCrunch {
          String suffixFilePath = commandLine.getOptionValue( "suffix_wordlist" );
          br = new BufferedReader(new InputStreamReader(new FileInputStream(suffixFilePath), commandLine.getOptionValue( "encoding", "iso-8859-1" )));
          while ((word = br.readLine()) != null) {
-            suffixWordlist.add( word );
+	    	 if(commandLine.hasOption( "normalize" )){
+	             word = normalize(word);
+	          }
+	    	 suffixWordlist.add( word );
          }
          br.close();
       }else{
@@ -85,7 +81,10 @@ public class JCrunch {
           String prefixFilePath = commandLine.getOptionValue( "prefix_wordlist" );
           br = new BufferedReader(new InputStreamReader(new FileInputStream(prefixFilePath), commandLine.getOptionValue( "encoding", "iso-8859-1" )));
           while ((word = br.readLine()) != null) {
-             prefixWordlist.add( word );
+        	  if(commandLine.hasOption( "normalize" )){
+                  word = normalize(word);
+              }
+        	  prefixWordlist.add( word );
           }
           br.close();
        }else{
@@ -98,6 +97,18 @@ public class JCrunch {
          leftPadExpression =  "%0" + commandLine.getOptionValue( "left_pad" , "8") + "d";
       }
    }
+
+private String normalize(String word) {
+	word = word.toLowerCase();
+	word = word.replaceAll( "á", "a" );
+	word = word.replaceAll( "é", "a" );
+	word = word.replaceAll( "í", "a" );
+	word = word.replaceAll( "ó", "a" );
+	word = word.replaceAll( "ú", "a" );
+	word = word.replaceAll( "-", "" );
+	word = word.replaceAll( " ", "" );
+	return word;
+}
    
    public void run(){
       int count = 0;
